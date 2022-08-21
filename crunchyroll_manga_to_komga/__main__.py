@@ -24,8 +24,6 @@ session = crunchyroll.session
 base = Path.home() / "Documents" / "Crunchyroll"
 base.mkdir(parents=True, exist_ok=True)
 
-from json import dumps
-
 for series_info in crunchyroll.list_series():
 	series_locale = series_info["locale"]["enUS"]
 	series_name = series_locale["name"]
