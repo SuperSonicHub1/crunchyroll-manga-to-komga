@@ -61,7 +61,8 @@ def create_comic_info(chapter_info: dict, series_info: dict):
 		comic_info.appendChild(create_element("Volume", chapter_info["volume_number"]))
 		# Use SeriesGroup to group by volume
 		# https://komga.org/guides/scan-analysis-refresh.html#import-metadata-for-cbr-cbz-containing-a-comicinfo-xml-file
-		comic_info.appendChild(create_element("SeriesGroup", f"{series_name} Volume {chapter_info['volume_number']}"))
+		# Disabled, as I misunderstood how series groups work
+		# comic_info.appendChild(create_element("SeriesGroup", f"{series_name} Volume {chapter_info['volume_number']}"))
 
 
 	description = chapter_locale["description"]
