@@ -5,7 +5,7 @@ description = "Download manga from Crunchyroll"
 authors = ["Kyle Anthony Williams <kyle.anthony.williams2@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 requests = "^2.28.1"
 pathvalidate = "^2.5.0"
 
