@@ -37,7 +37,7 @@ you were a programmer.
 The only tools you'll need are Git, Python, pip, and Poetry.
 
 `git clone`, `cd`, and `poetry install`. Then run
-`poetry run python -m crunchyroll_manga_to_komga`.
+`poetry run python -m crunchyroll_manga_to_komga <optional custom directory>`.
 My tool will then start logging output, telling you what series, chapter,
 and page is currently being downloaded.
 
@@ -50,7 +50,9 @@ machine crunchyroll.com login <your Crunchyroll username/email> password <your C
 Make sure that you place appropriate file permissions on this file so that only your user account can access it.
 
 All files are saved inside a `Crunchyroll` folder, which is inside your 
-`Documents` folder. As I said earlier, you'll be downloading tens of gigabytes of data, plus my tool regulary pauses in order to avoid being rate-limited, so it's going to take a few days to download everything.
+`Documents` folder, or the optional custom directory you specify via a positional command line argument.
+As I said earlier, you'll be downloading tens of gigabytes of data, plus my tool regulary pauses in order
+to avoid being rate-limited, so it's going to take a few days to download everything.
 While my tool does have auto-resume functionality, it would be ideal for
 you to run this on a secondary desktop computer if you want this to be done
 in a reasonable amount of time.

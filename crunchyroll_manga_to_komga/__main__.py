@@ -2,6 +2,7 @@ from mimetypes import guess_extension
 from netrc import netrc
 from os.path import splitext
 from pathlib import Path
+from sys import argv
 from time import sleep
 from zipfile import ZipFile
 from pathvalidate import sanitize_filename
@@ -21,7 +22,7 @@ crunchyroll = CRMangaAPI()
 crunchyroll.login(account, password)
 session = crunchyroll.session
 
-base = Path.home() / "Documents" / "Crunchyroll"
+base = Path(argv[1]) if len(argv) >= 2 else Path.home() / "Documents" / "Crunchyroll"
 base.mkdir(parents=True, exist_ok=True)
 
 for series_info in crunchyroll.list_series():
