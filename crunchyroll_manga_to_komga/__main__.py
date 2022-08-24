@@ -116,6 +116,3 @@ for series_info in crunchyroll.list_series():
 		sleep(2)
 		print("=", "Chapter downloaded.")
 	print(f"Series downloaded.")
-
-
-
