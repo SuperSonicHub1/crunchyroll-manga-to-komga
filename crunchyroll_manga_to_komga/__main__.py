@@ -6,6 +6,7 @@ from sys import argv
 from time import sleep
 from zipfile import ZipFile
 from pathvalidate import sanitize_filename
+from traceback import print_exception
 from .api import CRMangaAPI, CruncyrollError
 from .comic_info import create_comic_info
 from .util import format_chapter_number
@@ -94,8 +95,9 @@ for series_info in crunchyroll.list_series():
 			# either delete archive or implement page resumption
 			for page in chapter["pages"]:
 				page_number = page['number']
+				page_locale = page["locale"]["enUS"]
 				print("==", f"Downloading and writing page {page_number}.")
-				page_url = page["image_url"] or page.get("encrypted_mobile_image_url")
+				page_url = page_locale.get("encrypted_mobile_image_url") or page["image_url"]
 				# Some chapters like chapter ID 18835 page number 33
 				# just don't have a URL?
 				if not page_url:
@@ -105,10 +107,17 @@ for series_info in crunchyroll.list_series():
 				try:
 					page_res.raise_for_status()
 				except Exception as e:
-					if page_url == page["image_url"]:
-						page_res = session.get(page["locale"]["enUS"]["encrypted_mobile_image_url"])
+					if page_url == page_locale.get("encrypted_mobile_image_url"):
+						page_url = page["image_url"]
+						page_res = session.get(page_url)
+						page_res.raise_for_status()
 					else:
-						raise CruncyrollError(page) from e
+						try:
+							raise CruncyrollError(page) from e
+						except Exception as e:
+							print("!!", f"Page {page_number} could not be found.")
+							print_exception(e)
+							continue
 				page_blob = crunchyroll.decrypt_image(page_res.content)
 				archive.writestr(f"{page_number.zfill(5)}{guess_extension(page_res.headers['content-type']) or splitext(page_url)[1] or '.jpg'}", page_blob)
 				print("==", f"Page written.")
