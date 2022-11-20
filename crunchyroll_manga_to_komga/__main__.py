@@ -4,9 +4,11 @@ from os.path import splitext
 from pathlib import Path
 from sys import argv
 from time import sleep
+from traceback import print_exception
+from typing import Optional
 from zipfile import ZipFile
 from pathvalidate import sanitize_filename
-from traceback import print_exception
+from requests import Response
 from .api import CRMangaAPI, CruncyrollError
 from .comic_info import create_comic_info
 from .util import format_chapter_number
@@ -22,6 +24,32 @@ account, _, password = get_auth(netrc())
 crunchyroll = CRMangaAPI()
 crunchyroll.login(account, password)
 session = crunchyroll.session
+
+def get_image(page: dict) -> Optional[Response]:
+	"""Downloading images is suprisingly complex.
+	This function helps encapsulate the necessary logic for attempting to
+	download in image in various ways."""
+
+	# Why?!
+	if page['locale'] != []:
+		page_locale = page["locale"]["enUS"]
+
+		try:
+			page_res = session.get(page_locale.get("encrypted_mobile_image_url"))
+			page_res.raise_for_status()
+			return page_res
+		except:
+			print('==', 'page_locale.get("encrypted_mobile_image_url") failed')
+
+	try:
+		page_res = session.get(page.get('image_url'))
+		page_res.raise_for_status()
+		return page_res
+	except:
+		print('==', 'page.get("image_url") failed')
+
+	return None
+
 
 base = Path(argv[1]) if len(argv) >= 2 else Path.home() / "Documents" / "Crunchyroll"
 base.mkdir(parents=True, exist_ok=True)
@@ -95,31 +123,18 @@ for series_info in crunchyroll.list_series():
 			# either delete archive or implement page resumption
 			for page in chapter["pages"]:
 				page_number = page['number']
-				page_locale = page["locale"]["enUS"]
+
 				print("==", f"Downloading and writing page {page_number}.")
-				page_url = page_locale.get("encrypted_mobile_image_url") or page["image_url"]
-				# Some chapters like chapter ID 18835 page number 33
-				# just don't have a URL?
-				if not page_url:
+				
+				page_res = get_image(page)
+
+				if page_res == None:
 					print("!!", f"Page {page_number} could not be found.")
+					print("!!", page)
 					continue
-				page_res = session.get(page_url)
-				try:
-					page_res.raise_for_status()
-				except Exception as e:
-					if page_url == page_locale.get("encrypted_mobile_image_url"):
-						page_url = page["image_url"]
-						page_res = session.get(page_url)
-						page_res.raise_for_status()
-					else:
-						try:
-							raise CruncyrollError(page) from e
-						except Exception as e:
-							print("!!", f"Page {page_number} could not be found.")
-							print_exception(e)
-							continue
+
 				page_blob = crunchyroll.decrypt_image(page_res.content)
-				archive.writestr(f"{page_number.zfill(5)}{guess_extension(page_res.headers['content-type']) or splitext(page_url)[1] or '.jpg'}", page_blob)
+				archive.writestr(f"{page_number.zfill(5)}{guess_extension(page_res.headers['content-type']) or splitext(page_res.url)[1] or '.jpg'}", page_blob)
 				print("==", f"Page written.")
 		# Avoid 'bad_request' errors due to logging in too much?
 		sleep(2)
