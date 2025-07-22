@@ -1,4 +1,7 @@
 # Crunchyroll Manga to Komga
+
+**[Crunchyroll Manga is dead](https://www.animenewsnetwork.com/news/2023-11-11/crunchyroll-ends-digital-manga-app-on-mobile-web-on-december-11/.204339). Thanks for playing!**
+
 (somewhat) effortlessy save manga from Crunchyroll locally
 
 Crunchyroll's [manga offerings](https://www.crunchyroll.com/comics/manga)
